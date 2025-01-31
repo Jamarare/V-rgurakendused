@@ -6,19 +6,19 @@ namespace ITB2203Application.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EventsController : ControllerBase
+public class AttendeesController : ControllerBase
 {
     private readonly DataContext _context;
 
-    public EventsController(DataContext context)
+    public AttendeesController(DataContext context)
     {
         _context = context;
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Event>> GetEvents(string? name = null)
+    public ActionResult<IEnumerable<Attendee>> GetAttendees(string? name = null)
     {
-        var query = _context.Events!.AsQueryable();
+        var query = _context.Attendees!.AsQueryable();
 
         if (name != null)
             query = query.Where(x => x.Name != null && x.Name.ToUpper().Contains(name.ToUpper()));
@@ -27,43 +27,43 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<TextReader> GetEvent(int id)
+    public ActionResult<TextReader> GetAttendee(int id)
     {
-        var e = _context.Events!.Find(id);
+        var a = _context.Attendees!.Find(id);
 
-        if (e == null)
+        if (a == null)
         {
             return NotFound();
         }
 
-        return Ok(e);
+        return Ok(a);
     }
 
     [HttpPut("{id}")]
-    public IActionResult PutEvent(int id, Event e)
+    public IActionResult PutAttendee(int id, Attendee a)
     {
-        var dbe = _context.Events!.AsNoTracking().FirstOrDefault(x => x.Id == e.Id);
-        if (id != e.Id || dbe == null)
+        var dba = _context.Attendees!.AsNoTracking().FirstOrDefault(x => x.Id == a.Id);
+        if (id != a.Id || dba == null)
         {
             return NotFound();
         }
 
-        _context.Update(e);
+        _context.Update(a);
         _context.SaveChanges();
 
         return NoContent();
     }
 
     [HttpPost]
-    public ActionResult<Event> PostEvent(Event e)
+    public ActionResult<Attendee> PostAttendees(Attendee a)
     {
-        var dbExercise = _context.Events!.Find(e.Id);
+        var dbExercise = _context.Attendees!.Find(a.Id);
         if (dbExercise == null)
         {
-            _context.Add(e);
+            _context.Add(a);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetEvent), new { Id = e.Id }, e);
+            return CreatedAtAction(nameof(GetAttendee), new { Id = a.Id }, a);
         }
         else
         {
@@ -72,15 +72,15 @@ public class EventsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteEvent(int id)
+    public IActionResult DeleteAttendee(int id)
     {
-        var e = _context.Events!.Find(id);
-        if (e == null)
+        var a = _context.Attendees!.Find(id);
+        if (a == null)
         {
             return NotFound();
         }
 
-        _context.Remove(e);
+        _context.Remove(a);
         _context.SaveChanges();
 
         return NoContent();
