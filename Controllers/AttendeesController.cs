@@ -27,7 +27,7 @@ public class AttendeesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<TextReader> GetAttendee(int id)
+    public ActionResult<Attendee> GetAttendee(int id)
     {
         var a = _context.Attendees!.Find(id);
 

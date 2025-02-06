@@ -55,21 +55,26 @@ public class SpeakersController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<Speaker> PostSpeakers(Speaker s)
+    public ActionResult<Speaker> PostSpeaker(Speaker speaker)
     {
-        var dbExercise = _context.Speakers!.Find(s.Id);
+        if (!speaker.Email.Contains("@"))
+        {
+            return BadRequest("Email needs to contain an @");
+        }
+        var dbExercise = _context.Speakers!.Find(speaker.Id);
         if (dbExercise == null)
         {
-            _context.Add(s);
+            _context.Add(speaker);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetSpeakers), new { Id = s.Id }, s);
+            return CreatedAtAction(nameof(GetSpeaker), new { Id = speaker.Id }, speaker);
         }
         else
         {
             return Conflict();
         }
     }
+
 
     [HttpDelete("{id}")]
     public IActionResult DeleteSpeaker(int id)

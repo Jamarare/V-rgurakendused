@@ -55,15 +55,15 @@ public class EventsController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<Event> PostEvent(Event e)
+    public ActionResult<Event> PostEvent(Event @event)
     {
-        var dbExercise = _context.Events!.Find(e.Id);
-        if (dbExercise == null)
+        var dbEvent = _context.Events.Find(@event.Id);
+        if (dbEvent == null)
         {
-            _context.Add(e);
+            _context.Add(@event);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetEvent), new { Id = e.Id }, e);
+            return CreatedAtAction(nameof(GetEvent), new { Id = @event.Id }, @event);
         }
         else
         {
