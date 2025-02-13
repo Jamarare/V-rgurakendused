@@ -15,56 +15,76 @@ public class AttendeesController : ControllerBase
         _context = context;
     }
 
+
     [HttpGet]
-    public ActionResult<IEnumerable<Attendee>> GetAttendees(string? name = null)
+    public ActionResult<IEnumerable<Attendee>> GetAttendees(string? Name = null)
     {
         var query = _context.Attendees!.AsQueryable();
 
-        if (name != null)
-            query = query.Where(x => x.Name != null && x.Name.ToUpper().Contains(name.ToUpper()));
+        if (Name != null)
+            query = query.Where(x => x.Name != null && x.Name.ToUpper().Contains(Name.ToUpper()));
 
         return query.ToList();
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Attendee> GetAttendee(int id)
+    public ActionResult<TextReader> GetAttendee(int id)
     {
-        var a = _context.Attendees!.Find(id);
+        var attendee = _context.Attendees!.Find(id);
 
-        if (a == null)
+        if (attendee == null)
         {
             return NotFound();
         }
 
-        return Ok(a);
+        return Ok(attendee);
     }
 
     [HttpPut("{id}")]
-    public IActionResult PutAttendee(int id, Attendee a)
+    public IActionResult PutAttendee(int id, Attendee attendee)
     {
-        var dba = _context.Attendees!.AsNoTracking().FirstOrDefault(x => x.Id == a.Id);
-        if (id != a.Id || dba == null)
+        var dbAttendee = _context.Attendees!.AsNoTracking().FirstOrDefault(x => x.Id == attendee.Id);
+        if (id != attendee.Id || dbAttendee == null)
         {
             return NotFound();
         }
 
-        _context.Update(a);
+        _context.Update(attendee);
         _context.SaveChanges();
 
         return NoContent();
     }
 
     [HttpPost]
-    public ActionResult<Attendee> PostAttendees(Attendee a)
+    public ActionResult<Attendee> PostAttendee(Attendee attendee)
     {
-        var dbExercise = _context.Attendees!.Find(a.Id);
-        if (dbExercise == null)
+        var eventDetails = _context.Events.FirstOrDefault(e => e.Id == attendee.EventId);
+        if (eventDetails == null || attendee.RegistrationTime >= eventDetails.Date)
         {
-            _context.Add(a);
+            return BadRequest("404 (Not Found)");
+        }
+
+        if (!attendee.Email.Contains('@'))
+        {
+            return BadRequest("404 (Not Found)");
+        }
+
+        var dbAttendee = _context.Attendees!.Find(attendee.Id);
+        if (dbAttendee == null)
+        {
+
+            var dbAttendeeEmail = _context.Attendees.FirstOrDefault(a => a.Email == attendee.Email);
+            if (dbAttendeeEmail != null)
+            {
+                return BadRequest("404 (Not Found)");
+            }
+
+            _context.Add(attendee);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetAttendee), new { Id = a.Id }, a);
+            return CreatedAtAction(nameof(GetAttendee), new { Id = attendee.Id }, attendee);
         }
+
         else
         {
             return Conflict();
@@ -74,13 +94,13 @@ public class AttendeesController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteAttendee(int id)
     {
-        var a = _context.Attendees!.Find(id);
-        if (a == null)
+        var attendee = _context.Attendees!.Find(id);
+        if (attendee == null)
         {
             return NotFound();
         }
 
-        _context.Remove(a);
+        _context.Remove(attendee);
         _context.SaveChanges();
 
         return NoContent();

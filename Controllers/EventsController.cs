@@ -16,39 +16,42 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Event>> GetEvents(string? name = null)
+    public ActionResult<IEnumerable<Event>> GetEvents(string? name = null, string? location = null)
     {
-        var query = _context.Events!.AsQueryable();
+        var query = _context.Events.AsQueryable();
 
         if (name != null)
             query = query.Where(x => x.Name != null && x.Name.ToUpper().Contains(name.ToUpper()));
+
+        if (location != null)
+            query = query.Where(x => x.Location != null && x.Location.ToUpper().Contains(location.ToUpper()));
 
         return query.ToList();
     }
 
     [HttpGet("{id}")]
-    public ActionResult<TextReader> GetEvent(int id)
+    public ActionResult<Event> GetEvent(int id)
     {
-        var e = _context.Events!.Find(id);
+        var @event = _context.Events!.Find(id);
 
-        if (e == null)
+        if (@event == null)
         {
             return NotFound();
         }
 
-        return Ok(e);
+        return Ok(@event);
     }
 
     [HttpPut("{id}")]
-    public IActionResult PutEvent(int id, Event e)
+    public IActionResult PutEvent(int id, Event @event)
     {
-        var dbe = _context.Events!.AsNoTracking().FirstOrDefault(x => x.Id == e.Id);
-        if (id != e.Id || dbe == null)
+        var dbEvent = _context.Events.AsNoTracking().FirstOrDefault(x => x.Id == @event.Id);
+        if (id != @event.Id || dbEvent == null)
         {
             return NotFound();
         }
 
-        _context.Update(e);
+        _context.Update(@event);
         _context.SaveChanges();
 
         return NoContent();
@@ -74,13 +77,13 @@ public class EventsController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteEvent(int id)
     {
-        var e = _context.Events!.Find(id);
-        if (e == null)
+        var @event = _context.Events.Find(id);
+        if (@event == null)
         {
             return NotFound();
         }
 
-        _context.Remove(e);
+        _context.Remove(@event);
         _context.SaveChanges();
 
         return NoContent();
