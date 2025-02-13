@@ -60,19 +60,18 @@ public class EventsController : ControllerBase
     [HttpPost]
     public ActionResult<Event> PostEvent(Event @event)
     {
-        var dbEvent = _context.Events.Find(@event.Id);
-        if (dbEvent == null)
+        var speakerExists = _context.Speakers!.Any(s => s.Id == @event.SpeakerId);
+        if (!speakerExists)
         {
-            _context.Add(@event);
-            _context.SaveChanges();
+            return NotFound("Speaker not found.");
+        }
 
-            return CreatedAtAction(nameof(GetEvent), new { Id = @event.Id }, @event);
-        }
-        else
-        {
-            return Conflict();
-        }
+        _context.Events!.Add(@event);
+        _context.SaveChanges();
+
+        return CreatedAtAction(nameof(GetEvent), new { Id = @event.Id }, @event);
     }
+
 
     [HttpDelete("{id}")]
     public IActionResult DeleteEvent(int id)

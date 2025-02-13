@@ -39,9 +39,15 @@ public class SpeakersController : Controller
 
         return Ok(speaker);
     }
+
     [HttpPut("{id}")]
     public IActionResult PutSpeaker(int id, Speaker speaker)
     {
+        if (!speaker.Email.Contains("@"))
+        {
+            return BadRequest("Email needs to contain an @");
+        }
+
         var dbSpeaker = _context.Speakers!.AsNoTracking().FirstOrDefault(x => x.Id == speaker.Id);
         if (id != speaker.Id || dbSpeaker == null)
         {
@@ -53,6 +59,7 @@ public class SpeakersController : Controller
 
         return NoContent();
     }
+
     [HttpPost]
     public ActionResult<Speaker> PostSpeaker(Speaker speaker)
     {
@@ -60,8 +67,9 @@ public class SpeakersController : Controller
         {
             return BadRequest("Email needs to contain an @");
         }
-        var dbExercise = _context.Speakers!.Find(speaker.Id);
-        if (dbExercise == null)
+
+        var dbSpeaker = _context.Speakers!.Find(speaker.Id);
+        if (dbSpeaker == null)
         {
             _context.Add(speaker);
             _context.SaveChanges();
@@ -73,6 +81,8 @@ public class SpeakersController : Controller
             return Conflict();
         }
     }
+
+
 
     [HttpDelete("{id}")]
     public IActionResult DeleteSpeaker(int id)
