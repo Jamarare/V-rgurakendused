@@ -25,7 +25,7 @@ public class AttendeesController : ControllerBase
             query = query.Where(a =>
                 _context.Events
                     .Where(e => e.Id == a.EventId)
-                    .Any(e => a.RegistrationTime <= e.Date.AddDays(-daysBeforeEvent.Value))
+                    .Any(e => a.RegistrationTime < e.Date.AddDays(-daysBeforeEvent.Value))
             );
         }
 
